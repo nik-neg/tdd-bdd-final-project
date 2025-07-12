@@ -5,6 +5,8 @@ Thumbs.db
 # Vagrant
 .vagrant/
 
+.venv/
+
 # Test reports
 unittests.xml
 
