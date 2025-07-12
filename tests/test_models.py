@@ -199,7 +199,7 @@ class TestProductModel(unittest.TestCase):
         found_products = Product.all()
         
         for created, found in zip(created_products, found_products):
-            # app.logger.log(created.id, found.id)
+            # app.logger.log(logging.CRITICAL, created.id)
             self.assertEqual(created.id, found.id)
             self.assertEqual(created.name, found.name)
             self.assertEqual(created.description, found.description)
@@ -209,5 +209,79 @@ class TestProductModel(unittest.TestCase):
 
 
 
+    def test_search_by_name(self):
+        """It should return the products found by name"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product1 = ProductFactory()
+        product1.id = None
+        product1.create()
+        self.assertIsNotNone(product1.id)
 
+        product2 = ProductFactory()
+        product2.id = None
+        product2.create()
+        self.assertIsNotNone(product2.id)
+        self.assertNotEqual(product1.name, product2.name)
+
+        product3 = ProductFactory()
+        product3.id = None
+        product3.create()
+        self.assertIsNotNone(product3.id)
+        self.assertNotEqual(product2.name, product3.name)
+        self.assertNotEqual(product3.name, product1.name)
+
+        products = Product.all()
+        self.assertEqual(len(products), 3)
+
+        found_products = Product.find_by_name(product3.name)
+        self.assertEqual(len(list(found_products)), 1)
+        found = found_products[0]
+
+        app.logger.log(logging.CRITICAL, found.id)
+        app.logger.log(logging.CRITICAL, product3.id)
+
+        self.assertEqual(product3.id, found.id)
+        self.assertEqual(product3.name, found.name)
+        self.assertEqual(product3.description, found.description)
+        self.assertEqual(Decimal(product3.price), found.price)
+        self.assertEqual(product3.available, found.available)
+        self.assertEqual(product3.category, found.category)
+
+        product2.name = product1.name;
+        product2.update()
+        found_products = Product.find_by_name(product2.name)
+        self.assertEqual(len(list(found_products)), 2)
+
+    # def test_search_by_category(self):
+    #     """It should return the products found by category"""
+    #     products = Product.all()
+    #     self.assertEqual(products, [])
+    #     product = ProductFactory()
+    #     product.id = None
+    #     product.create()
+    #     self.assertIsNotNone(product.id)
+    #     products = Product.all()
+    #     self.assertEqual(len(products), 1)
+
+    #     found_products = Product.find_by_name(product.name)
+    #     found = found_products[0]
+        
+    #     self.assertEqual(product.id, found.id)
+    #     self.assertEqual(product.name, found.name)
+    #     self.assertEqual(product.description, found.description)
+    #     self.assertEqual(Decimal(product.price), found.price)
+    #     self.assertEqual(product.available, found.available)
+    #     self.assertEqual(product.category, found.category)
+
+    # def test_search_by_availability(self):
+    #     """It should return the products found by availability"""
+    #     products = Product.all()
+    #     self.assertEqual(products, [])
+    #     product = ProductFactory()
+    #     product.id = None
+    #     product.create()
+    #     self.assertIsNotNone(product.id)
+    #     products = Product.all()
+    #     self.assertEqual(len(products), 1)
         
