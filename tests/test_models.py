@@ -181,6 +181,31 @@ class TestProductModel(unittest.TestCase):
         products = Product.all()
         self.assertEqual(products, [])
 
+    def test_list_all_products(self):
+        """It should return a list of all products"""
+        products = Product.all()
+        self.assertEqual(products, [])
+
+        created_products = []
+        for i in range(1, 5):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            created_products.append(product)
+            self.assertIsNotNone(product.id)
+            products = Product.all()
+            self.assertEqual(len(products), i)
+        
+        found_products = Product.all()
+        
+        for created, found in zip(created_products, found_products):
+            self.assertEqual(created.id, found.id)
+            self.assertEqual(created.name, found.name)
+            self.assertEqual(created.description, found.description)
+            self.assertEqual(Decimal(created.price), found.price)
+            self.assertEqual(created.available, found.available)
+            self.assertEqual(created.category, found.category)
+
 
 
 
