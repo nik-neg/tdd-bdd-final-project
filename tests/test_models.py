@@ -199,6 +199,7 @@ class TestProductModel(unittest.TestCase):
         found_products = Product.all()
         
         for created, found in zip(created_products, found_products):
+            # app.logger.log(created.id, found.id)
             self.assertEqual(created.id, found.id)
             self.assertEqual(created.name, found.name)
             self.assertEqual(created.description, found.description)
