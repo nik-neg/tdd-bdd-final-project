@@ -27,7 +27,7 @@ import os
 import logging
 import unittest
 from decimal import Decimal
-from service.models import Product, Category, db
+from service.models import Product, Category, db, DataValidationError
 from service import app
 from tests.factories import ProductFactory
 
@@ -105,7 +105,7 @@ class TestProductModel(unittest.TestCase):
     # ADD YOUR TEST CASES HERE
     #
     def test_read_a_product(self):
-        """It should READ a product by id and return it"""
+        """It should READ a product by id"""
         products = Product.all()
         self.assertEqual(products, [])
         product = ProductFactory()
@@ -123,5 +123,50 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(Decimal(found_product.price), product.price)
         self.assertEqual(found_product.available, product.available)
         self.assertEqual(found_product.category, product.category)
+
+    def test_read_a_product_that_does_not_exist(self):
+        """It should return None if a product by id was not found"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product = ProductFactory()
+
+        found_product = Product.find(product.id)
+        self.assertEqual(found_product, None)
+
+
+    def test_update_a_product(self):
+        """It should UPDATE a product"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(product.id)
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+
+        product.name = 'new name'
+        product.update()
+
+        found_product = Product.find(product.id)
+        self.assertEqual(found_product.id, product.id)
+        self.assertEqual(found_product.name, product.name)
+
+    def test_update_a_product_that_does_not_have_id(self):
+        """It should raise DataValidationError if id is None"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+
+        product.id = None
+        product.name = 'new name'
+        self.assertRaises(DataValidationError, product.update)
+
 
         
