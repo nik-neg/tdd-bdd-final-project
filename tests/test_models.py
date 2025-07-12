@@ -291,14 +291,44 @@ class TestProductModel(unittest.TestCase):
         found_products = Product.find_by_category(product3.category)
         self.assertEqual(len(list(found_products)), 3)
 
-    # def test_search_by_availability(self): 
-    #     """It should return the products found by availability"""
-    #     products = Product.all()
-    #     self.assertEqual(products, [])
-    #     product = ProductFactory()
-    #     product.id = None
-    #     product.create()
-    #     self.assertIsNotNone(product.id)
-    #     products = Product.all()
-    #     self.assertEqual(len(products), 1)
+    def test_search_by_availability(self): 
+        """It should return the products found by availability"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product1 = ProductFactory()
+        product1.id = None
+        product1.available = True
+        product1.create()
+        self.assertIsNotNone(product1.id)
+
+        product2 = ProductFactory()
+        product2.id = None
+        product2.available = True
+        product2.create()
+        self.assertIsNotNone(product2.id)
+
+        product3 = ProductFactory()
+        product3.id = None
+        product3.available = False
+        product3.create()
+        self.assertIsNotNone(product3.id)
+
+        products = Product.all()
+        self.assertEqual(len(products), 3)
+
+        found_products = Product.find_by_availability(product3.available)
+        self.assertEqual(len(list(found_products)), 1)
+        found = found_products[0]
+
+        self.assertEqual(product3.id, found.id)
+        self.assertEqual(product3.name, found.name)
+        self.assertEqual(product3.description, found.description)
+        self.assertEqual(Decimal(product3.price), found.price)
+        self.assertEqual(product3.available, found.available)
+        self.assertEqual(product3.category, found.category)
+
+        product3.available = product1.available;
+        product3.update()
+        found_products = Product.find_by_availability(product3.available)
+        self.assertEqual(len(list(found_products)), 3)
         
