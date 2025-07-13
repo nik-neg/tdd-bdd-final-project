@@ -18,6 +18,7 @@
 """
 Product Store Service with UI
 """
+import logging
 from flask import jsonify, request, abort
 from flask import url_for  # noqa: F401 pylint: disable=unused-import
 from service.models import Product
@@ -89,8 +90,11 @@ def create_products():
     #
     # Uncomment this line of code once you implement READ A PRODUCT
     #
-    # location_url = url_for("get_products", product_id=product.id, _external=True)
-    location_url = "/"  # delete once READ is implemented
+    location_url = url_for("read_product_by_id", product_id=product.id, _external=True)
+
+    logging.debug("location_url: %s", location_url)
+    
+    # location_url = "/"  # delete once READ is implemented
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 
@@ -105,7 +109,15 @@ def create_products():
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
-
+@app.route("/products/<string:product_id>", methods=["GET"])
+def read_product_by_id(product_id):
+    """Reads a product by product_id"""
+    found_product = Product.find(product_id)
+    if not found_product:
+        abort(404, description=f"Product with ID {product_id} not found.")
+    
+    serialized_found_product = found_product.serialize()
+    return jsonify(serialized_found_product), status.HTTP_200_OK
 #
 # PLACE YOUR CODE HERE TO READ A PRODUCT
 #
