@@ -263,6 +263,17 @@ class TestProductRoutes(TestCase):
         count = self.get_product_count()
         self.assertEqual(count, 0)
 
+        wrong_id = 123
+
+        response = self.client.patch(f'/products/{wrong_id}', json={})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_product(self):
+        """It should delete an existing product by id"""
+        # check db empty
+        count = self.get_product_count()
+        self.assertEqual(count, 0)
+
         test_product = ProductFactory()
         logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -286,15 +297,23 @@ class TestProductRoutes(TestCase):
         new_product['price'] = 1.99
         new_product['available'] = not new_product['available']
         new_product['category'] = 'HOUSEWARES'
-
-        wrong_id = new_product['id'] + 1
         del new_product['id']
 
 
-        response = self.client.patch(f'/products/{wrong_id}', json=new_product)
+        response = self.client.delete(location)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_product_that_is_not_in_database(self):
+        """It should return 404 if the product id is not found"""
+        # check db empty
+        count = self.get_product_count()
+        self.assertEqual(count, 0)
+
+        wrong_id = 123
+
+        response = self.client.delete(f'/products/{wrong_id}')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-
+    
     ######################################################################
     # Utility functions
     ######################################################################

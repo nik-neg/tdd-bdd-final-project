@@ -65,7 +65,6 @@ def check_content_type(content_type):
         f"Content-Type must be {content_type}",
     )
 
-
 ######################################################################
 # C R E A T E   A   N E W   P R O D U C T
 ######################################################################
@@ -97,7 +96,6 @@ def create_products():
     # location_url = "/"  # delete once READ is implemented
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
-
 ######################################################################
 # L I S T   A L L   P R O D U C T S
 ######################################################################
@@ -124,7 +122,6 @@ def read_product_by_id(product_id):
     serialized_found_product = found_product.serialize()
     return jsonify(serialized_found_product), status.HTTP_200_OK
 
-
 ######################################################################
 # U P D A T E   A   P R O D U C T
 ######################################################################
@@ -136,7 +133,7 @@ def update_product_by_id(product_id):
         abort(404, description=f"Product with ID {product_id} not found.")
     
     data = request.get_json()
-    
+
     # app.logger.critical("data: %s", data)
     # app.logger.critical("found_product: %s", found_product)
 
@@ -151,8 +148,13 @@ def update_product_by_id(product_id):
 ######################################################################
 # D E L E T E   A   P R O D U C T
 ######################################################################
+@app.route("/products/<string:product_id>", methods=["DELETE"])
+def dalete_product_by_id(product_id):
+    """Removes a product by product_id"""
+    found_product = Product.find(product_id)
+    if not found_product:
+        abort(404, description=f"Product with ID {product_id} not found.")
+    
+    found_product.delete()
+    return jsonify({}), status.HTTP_204_NO_CONTENT
 
-
-#
-# PLACE YOUR CODE TO DELETE A PRODUCT HERE
-#
