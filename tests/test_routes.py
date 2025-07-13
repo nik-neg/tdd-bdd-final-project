@@ -170,6 +170,10 @@ class TestProductRoutes(TestCase):
     #
     def test_product_not_found_by_id(self):
         """It should not find a product that does not exist and return 404"""
+        # check db empty
+        count = self.get_product_count()
+        self.assertEqual(count, 0)
+
         test_product = ProductFactory()
         logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -186,18 +190,31 @@ class TestProductRoutes(TestCase):
         self.assertEqual(Decimal(new_product["price"]), test_product.price)
         self.assertEqual(new_product["available"], test_product.available)
         self.assertEqual(new_product["category"], test_product.category.name)
-
-        #
-        # Uncomment this code once READ is implemented
-        #
-
-        # Check that the location header was correct
-        # logging.debug("Location: %s", location)
         
         id = new_product['id'] + 1
         response = self.client.get(f'/products/{id}')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_find_all_products(self):
+        """It should return a list with all products"""
+
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.json, [])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        test_product = ProductFactory()
+        logging.debug("Test Product: %s", test_product.serialize())
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        test_product = ProductFactory()
+        logging.debug("Test Product: %s", test_product.serialize())
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+        count = self.get_product_count()
+        self.assertEqual(count, 2)
     ######################################################################
     # Utility functions
     ######################################################################

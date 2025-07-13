@@ -101,10 +101,15 @@ def create_products():
 ######################################################################
 # L I S T   A L L   P R O D U C T S
 ######################################################################
+@app.route("/products", methods=["GET"])
+def read_products():
+    """Reads a product by product_id"""
+    found_products = Product.all()
+    
+    serialized_found_product = list(map(lambda p: p.serialize(), found_products))
 
-#
-# PLACE YOUR CODE TO LIST ALL PRODUCTS HERE
-#
+
+    return jsonify(serialized_found_product), status.HTTP_200_OK
 
 ######################################################################
 # R E A D   A   P R O D U C T
@@ -118,9 +123,7 @@ def read_product_by_id(product_id):
     
     serialized_found_product = found_product.serialize()
     return jsonify(serialized_found_product), status.HTTP_200_OK
-#
-# PLACE YOUR CODE HERE TO READ A PRODUCT
-#
+
 
 ######################################################################
 # U P D A T E   A   P R O D U C T
