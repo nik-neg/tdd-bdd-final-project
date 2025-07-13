@@ -30,7 +30,7 @@ from decimal import Decimal
 from unittest import TestCase
 from service import app
 from service.common import status
-from service.models import db, init_db, Product
+from service.models import db, init_db, Product, DataValidationError
 from tests.factories import ProductFactory
 
 # Disable all but critical errors during normal test run
@@ -256,6 +256,61 @@ class TestProductRoutes(TestCase):
         self.assertEqual(Decimal(updated_product["price"]), new_product["price"])
         self.assertEqual(updated_product["available"], new_product["available"])
         self.assertEqual(updated_product["category"], new_product["category"])
+
+
+    def test_update_product_validation_errors(self):
+        """It should raise DataValidationError if the conditions are violated"""
+        # check db empty
+        count = self.get_product_count()
+        self.assertEqual(count, 0)
+
+        test_product = ProductFactory()
+        logging.debug("Test Product: %s", test_product.serialize())
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Make sure location header is set
+        location = response.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+        response = self.client.get(location)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_product = response.get_json()
+        self.assertEqual(new_product["name"], test_product.name)
+        self.assertEqual(new_product["description"], test_product.description)
+        self.assertEqual(Decimal(new_product["price"]), test_product.price)
+        self.assertEqual(new_product["available"], test_product.available)
+        self.assertEqual(new_product["category"], test_product.category.name)
+
+
+        del new_product['id']
+
+        product_with_wrong_available = { **new_product }
+        product_with_wrong_available['available'] = 123
+
+        response = self.client.patch(location, json=product_with_wrong_available)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        product_with_additional_attribute = { **new_product };
+        product_with_additional_attribute['my_attribute'] = 'new attribute'
+
+        response = self.client.patch(location, json=product_with_additional_attribute)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+        product_with_missing_attribute = { **new_product };
+        del product_with_missing_attribute['name']
+
+        response = self.client.patch(location, json=product_with_missing_attribute)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        product_with_wrong_type_category = { **new_product };
+        product_with_wrong_type_category['category'] = 123
+
+        response = self.client.patch(location, json=product_with_wrong_type_category)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 
     def test_update_product_that_is_not_in_database(self):
         """It should return 404 if the product id is not found"""
