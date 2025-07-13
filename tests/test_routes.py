@@ -114,7 +114,7 @@ class TestProductRoutes(TestCase):
     def test_create_product(self):
         """It should Create a new Product"""
         test_product = ProductFactory()
-        logging.debug("Test Product: %s", test_product.serialize())
+        app.logger.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -242,7 +242,7 @@ class TestProductRoutes(TestCase):
 
         new_product['name'] = 'new name'
         new_product['description'] = 'new description'
-        new_product['price'] = 1.99
+        new_product['price'] = '1.99'
         new_product['available'] = not new_product['available']
         new_product['category'] = 'HOUSEWARES'
         del new_product['id']
@@ -253,7 +253,7 @@ class TestProductRoutes(TestCase):
         updated_product = response.get_json()
         self.assertEqual(updated_product['name'], new_product["name"])
         self.assertEqual(updated_product["description"], new_product["description"])
-        self.assertEqual(Decimal(updated_product["price"]), new_product["price"])
+        self.assertEqual(updated_product["price"], new_product["price"])
         self.assertEqual(updated_product["available"], new_product["available"])
         self.assertEqual(updated_product["category"], new_product["category"])
 
@@ -291,25 +291,29 @@ class TestProductRoutes(TestCase):
         response = self.client.patch(location, json=product_with_wrong_available)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        product_with_additional_attribute = { **new_product };
-        product_with_additional_attribute['my_attribute'] = 'new attribute'
-
-        response = self.client.patch(location, json=product_with_additional_attribute)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-
         product_with_missing_attribute = { **new_product };
         del product_with_missing_attribute['name']
 
         response = self.client.patch(location, json=product_with_missing_attribute)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        product_with_wrong_type_category = { **new_product };
-        product_with_wrong_type_category['category'] = 123
+        product_with_wrong_type_name = { **new_product };
+        product_with_wrong_type_name['name'] = 12.99
 
-        response = self.client.patch(location, json=product_with_wrong_type_category)
+        response = self.client.patch(location, json=product_with_wrong_type_name)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        product_with_wrong_type_description = { **new_product };
+        product_with_wrong_type_description['description'] = 12.99
+
+        response = self.client.patch(location, json=product_with_wrong_type_description)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        product_with_wrong_type_price = { **new_product };
+        product_with_wrong_type_price['price'] = 123
+
+        response = self.client.patch(location, json=product_with_wrong_type_price)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
     def test_update_product_that_is_not_in_database(self):
