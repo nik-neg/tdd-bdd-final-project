@@ -257,7 +257,7 @@ class TestProductRoutes(TestCase):
         self.assertEqual(updated_product["available"], new_product["available"])
         self.assertEqual(updated_product["category"], new_product["category"])
 
-    def test_update_product_that_does_not_exist(self):
+    def test_update_product_that_is_not_in_database(self):
         """It should return 404 if the product id is not found"""
         # check db empty
         count = self.get_product_count()
