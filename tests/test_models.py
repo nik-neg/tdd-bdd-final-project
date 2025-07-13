@@ -197,6 +197,10 @@ class TestProductModel(unittest.TestCase):
             self.assertEqual(len(products), i)
         
         found_products = Product.all()
+
+        created_products = sorted(created_products, key=lambda x: x.id)
+        found_products = sorted(found_products, key=lambda x: x.id)
+
         
         for created, found in zip(created_products, found_products):
             # app.logger.log(logging.CRITICAL, created.id)
