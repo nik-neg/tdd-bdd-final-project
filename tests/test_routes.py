@@ -373,6 +373,18 @@ class TestProductRoutes(TestCase):
         response = self.client.delete(f'/products/{wrong_id}')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
+
+    def test_find_by_name(self):
+        raise TypeError;
+
+    def test_find_by_availability(self):
+        raise TypeError;
+    
+    def test_find_by_category(self):
+        raise TypeError;
+
+    def test_find_by_price(self):
+        raise TypeError;
     ######################################################################
     # Utility functions
     ######################################################################
