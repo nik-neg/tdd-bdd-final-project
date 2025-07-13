@@ -128,10 +128,25 @@ def read_product_by_id(product_id):
 ######################################################################
 # U P D A T E   A   P R O D U C T
 ######################################################################
+@app.route("/products/<string:product_id>", methods=["PATCH"])
+def update_product_by_id(product_id):
+    """Updates a product by product_id"""
+    found_product = Product.find(product_id)
+    if not found_product:
+        abort(404, description=f"Product with ID {product_id} not found.")
+    
+    data = request.get_json()
+    
+    # app.logger.critical("data: %s", data)
+    # app.logger.critical("found_product: %s", found_product)
 
-#
-# PLACE YOUR CODE TO UPDATE A PRODUCT HERE
-#
+    found_product = found_product.deserialize(data)
+
+    found_product.update()
+
+    serialized_found_product = found_product.serialize()
+    
+    return jsonify(serialized_found_product), status.HTTP_200_OK
 
 ######################################################################
 # D E L E T E   A   P R O D U C T
