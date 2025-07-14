@@ -375,16 +375,97 @@ class TestProductRoutes(TestCase):
     
 
     def test_find_by_name(self):
-        raise TypeError;
+        """It should find a product by name"""
+        products = self._create_products(3)
+        test_product = products[0]
+        
+        # Test finding product by name
+        response = self.client.get(
+            BASE_URL, 
+            query_string=f'name={test_product.name}'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        data = response.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["name"], test_product.name)
 
     def test_find_by_availability(self):
-        raise TypeError;
-    
-    def test_find_by_category(self):
-        raise TypeError;
+        """It should find a product by availability"""
+        products = self._create_products(10)
+        available_products = [product for product in products if product.available]
+        unavailable_products = [product for product in products if not product.available]
+        
+        # Test finding available products
+        response = self.client.get(
+            BASE_URL,
+            query_string='available=true'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        data = response.get_json()
+        self.assertEqual(len(data), len(available_products))
+        for product in data:
+            self.assertTrue(product["available"])
 
-    def test_find_by_price(self):
-        raise TypeError;
+        # Test finding unavailable products
+        response = self.client.get(
+            BASE_URL,
+            query_string='available=false'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        data = response.get_json()
+        self.assertEqual(len(data), len(unavailable_products))
+        for product in data:
+            self.assertFalse(product["available"])
+
+    def test_find_by_category(self):
+        """It should find a product by category"""
+        products = self._create_products(10)
+        test_category = products[0].category
+
+        # Count products with test category
+        category_products = [p for p in products if p.category == test_category]
+
+        # Test finding products by category
+        response = self.client.get(
+            BASE_URL,
+            query_string=f'category={test_category.name}'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        data = response.get_json()
+        self.assertEqual(len(data), len(category_products))
+        for product in data:
+            self.assertEqual(product["category"], test_category.name)
+
+        # Test invalid category
+        response = self.client.get(
+            BASE_URL,
+            query_string='category=INVALID'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_find_by_price(self): 
+        """It should find a product by price"""
+        products = self._create_products(10)
+        test_price = products[0].price
+
+        # Count products with test price
+        price_products = [p for p in products if p.price == test_price]
+
+        # Test finding products by price
+        response = self.client.get(
+            BASE_URL,
+            query_string=f'price={test_price}'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        data = response.get_json() 
+        self.assertEqual(len(data), len(price_products))
+        for product in data:
+            self.assertEqual(Decimal(product["price"]), test_price)
     ######################################################################
     # Utility functions
     ######################################################################

@@ -21,7 +21,7 @@ Product Store Service with UI
 import logging
 from flask import jsonify, request, abort
 from flask import url_for  # noqa: F401 pylint: disable=unused-import
-from service.models import Product
+from service.models import Product, Category
 from service.common import status  # HTTP Status Codes
 from . import app
 
@@ -93,21 +93,7 @@ def create_products():
 
     logging.debug("location_url: %s", location_url)
     
-    # location_url = "/"  # delete once READ is implemented
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-
-######################################################################
-# L I S T   A L L   P R O D U C T S
-######################################################################
-@app.route("/products", methods=["GET"])
-def read_products():
-    """Reads a product by product_id"""
-    found_products = Product.all()
-    
-    serialized_found_product = list(map(lambda p: p.serialize(), found_products))
-
-
-    return jsonify(serialized_found_product), status.HTTP_200_OK
 
 ######################################################################
 # R E A D   A   P R O D U C T
@@ -158,3 +144,44 @@ def dalete_product_by_id(product_id):
     found_product.delete()
     return jsonify({}), status.HTTP_204_NO_CONTENT
 
+
+######################################################################
+# L I S T   P R O D U C T S   O R   Q U E R Y
+######################################################################
+@app.route("/products", methods=["GET"])
+def list_products():
+    """Returns list of all Products or query results if parameters provided"""
+    logging.info("Request to list products...")
+
+    # Get query parameters
+    name = request.args.get('name')
+    price = request.args.get('price')
+    available = request.args.get('available')
+    category = request.args.get('category')
+
+    # Count number of query parameters provided
+    params = [p for p in [name, price, available, category] if p is not None]
+    if len(params) > 1:
+        abort(400, description="Only one query parameter can be provided at a time")
+
+    # Process single query parameter if provided
+    if name:
+        logging.info("Returning %s name", name)
+        products = Product.find_by_name(name)
+    elif price:
+        products = Product.find_by_price(price)
+    elif available is not None:
+        available_bool = available.lower() == 'true'
+        products = Product.find_by_availability(available_bool)
+    elif category:
+        try:
+            category_enum = Category[category.upper()]
+            products = Product.find_by_category(category_enum)
+        except KeyError:
+            abort(400, description=f"Invalid category: {category}")
+    else:
+        products = Product.all()
+
+    results = [product.serialize() for product in products]
+    app.logger.info("Returning %d products", len(results))
+    return jsonify(results), status.HTTP_200_OK
