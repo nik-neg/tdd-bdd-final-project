@@ -466,6 +466,18 @@ class TestProductRoutes(TestCase):
         self.assertEqual(len(data), len(price_products))
         for product in data:
             self.assertEqual(Decimal(product["price"]), test_price)
+
+    def test_find_by_multiple_parameters(self):
+        """It should find a product by multiple parameters"""
+        products = self._create_products(10)
+        test_product = products[0]
+
+        response = self.client.get(
+            BASE_URL,
+            query_string=f'name={test_product.name}&price={test_product.price}'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
     ######################################################################
     # Utility functions
     ######################################################################
