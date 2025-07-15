@@ -97,3 +97,31 @@ Scenario: Delete a Product
     When I paste the "Id" field
     And I press the "Delete" button
     Then I should see the message "Product has been Deleted!"
+
+Scenario: Update a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Hammer"
+    And I set the "Description" to "Claw hammer"
+    And I select "True" in the "Available" dropdown
+    And I select "Tools" in the "Category" dropdown
+    And I set the "Price" to "34.95"
+    And I press the "Create" button
+    Then I should see the message "Success"
+
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+
+    When I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Hammer" in the "Name" field
+    And I should see "Claw hammer" in the "Description" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "Tools" in the "Category" dropdown
+    And I should see "34.95" in the "Price" field
+
+    When I set the "Price" to "99.99"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    And I should see "99.99" in the "Price" field

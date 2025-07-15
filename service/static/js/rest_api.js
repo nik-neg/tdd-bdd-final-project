@@ -93,7 +93,7 @@ $(function () {
     $("#flash_message").empty();
 
     let ajax = $.ajax({
-      type: "PUT",
+      type: "PATCH",
       url: `/products/${product_id}`,
       contentType: "application/json",
       data: JSON.stringify(data),
