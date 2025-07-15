@@ -133,10 +133,10 @@ def step_impl(context, element_name, text_string):
     element.clear()
     element.send_keys(text_string)
 
-@then(u'I should see the message "Success"')
-def step_impl(context):
+@then(u'I should see the message "{message}"')
+def step_impl(context, message):
     flash_message = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.text_to_be_present_in_element((By.ID, "flash_message"), "Success")
+        expected_conditions.text_to_be_present_in_element((By.ID, "flash_message"), message)
     )
     assert flash_message
 
