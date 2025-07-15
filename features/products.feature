@@ -40,3 +40,66 @@ Scenario: Create a Product
     And I should see "34.95" in the "Price" field
 
 Scenario: Read a Product
+    When I visit the "Home Page"
+    And I set the "Product ID" to "1"
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the "Name" field
+    And I should see "A red fedora" in the "Description" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "CLOTHS" in the "Category" dropdown
+    And I should see "59.95" in the "Price" field
+
+Scenario: Update a Product
+    When I visit the "Home Page"
+    And I set the "Product ID" to "1"
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the "Name" field
+    And I should see "A red fedora" in the "Description" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "CLOTHS" in the "Category" dro pdown
+    And I should see "59.95" in the "Price" field
+    When I set the "Price" to "99.99"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    And I should see "99.99" in the "Price" field
+
+Scenario: Delete a Product
+    When I visit the "Home Page"
+    And I set the "Product ID" to "1"
+    And I press the "Delete" button
+    Then I should see the message "Success"
+
+Scenario: Find many products
+    When I visit the "Home Page"
+    Then I should see the a list of products
+
+Scenario: Find products by name
+    When I visit the "Home Page"
+    And I set the "Name" to "Hat"
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the "Name" field
+    And I should see "A red fedora" in the "Description" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "CLOTHS" in the "Category" dro pdown
+    And I should see "59.95" in the "Price" field
+
+Scenario: Find products by category
+    When I visit the "Home Page"
+    And I set the "Category" to "CLOTHS"
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see a list of 2 products
+
+Scenario: Find products by availability
+    When I visit the "Home Page"
+    And I set the "Available" to "False"
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Shoes" in the "Name" field
+    And I should see "Blue shoes " in the "Description" field
+    And I should see "False" in the "Available" dropdown
+    And I should see "CLOTHS" in the "Category" dro pdown
+    And I should see "120.50" in the "Price" field
