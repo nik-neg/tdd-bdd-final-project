@@ -146,3 +146,14 @@ def step_impl(context, element_name):
         expected_conditions.element_to_be_clickable((By.ID, f'{element_name.lower()}-btn'))
     )
     button.click()
+
+@then('I should see a list of "{amount}" products')
+def step_impl(context, amount):
+    # Wait for the search results table to be present
+    table = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, 'search_results'))
+    )
+    # Find all rows in the table body (excluding header)
+    rows = table.find_elements(By.TAG_NAME, 'tr')
+
+    assert len(rows) == int(amount), 'Not correct amount of products'

@@ -66,3 +66,10 @@ Scenario: Find products by availability
     And I should see "False" in the "Available" dropdown
     And I should see "Cloths" in the "Category" dropdown
     And I should see "120.50" in the "Price" field
+
+Scenario: Find many products
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    When I press the "Search" button
+    Then I should see a list of "5" products
