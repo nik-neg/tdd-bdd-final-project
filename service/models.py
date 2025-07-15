@@ -133,29 +133,28 @@ class Product(db.Model):
             if isinstance(data["name"], str):
                 self.name = data["name"]
             else:
-                raise DataValidationError(
+                raise TypeError(
                     "Invalid type for str [name]: "
                     + str(type(data["name"]))
                 )
             if isinstance(data["description"], str):
                 self.description = data["description"]
             else:
-                raise DataValidationError(
+                raise TypeError(
                     "Invalid type for str [description]: "
                     + str(type(data["description"]))
                 )
             if isinstance(data["price"], str):
                 self.price = Decimal(data["price"])
             else:
-                raise DataValidationError(
+                raise TypeError(
                     "Invalid type for str [price]: "
                     + str(type(data["price"]))
                 )
-            self.price = Decimal(data["price"])
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
-                raise DataValidationError(
+                raise TypeError(
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )

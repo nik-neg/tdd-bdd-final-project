@@ -316,6 +316,13 @@ class TestProductRoutes(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+        product_with_invalid_category = { **new_product };
+        product_with_invalid_category['category'] = 'INVALID'
+
+        response = self.client.patch(location, json=product_with_invalid_category)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
     def test_update_product_that_is_not_in_database(self):
         """It should return 404 if the product id is not found"""
         # check db empty
