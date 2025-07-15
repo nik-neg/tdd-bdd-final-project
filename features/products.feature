@@ -81,3 +81,19 @@ Scenario: Find products by category
     When I select "Food" in the "Category" dropdown
     And I press the "Search" button
     Then I should see a list of "1" products
+
+Scenario: Delete a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Hammer"
+    And I set the "Description" to "Claw hammer"
+    And I select "True" in the "Available" dropdown
+    And I select "Tools" in the "Category" dropdown
+    And I set the "Price" to "34.95"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    When I paste the "Id" field
+    And I press the "Delete" button
+    Then I should see the message "Product has been Deleted!"
