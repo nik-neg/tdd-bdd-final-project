@@ -133,27 +133,16 @@ def step_impl(context, element_name, text_string):
     element.clear()
     element.send_keys(text_string)
 
-@when(u'I press the "Create" button')
-def step_impl(context):
-    button = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.element_to_be_clickable((By.ID, 'create-btn'))
-    )
-    button.click()
-
-
 @then(u'I should see the message "Success"')
 def step_impl(context):
-    raise NotImplementedError(u'STEP: Then I should see the message "Success"')
+    flash_message = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element((By.ID, "flash_message"), "Success")
+    )
+    assert flash_message
 
-
-@when(u'I press the "Clear" button')
-def step_impl(context):
-    raise NotImplementedError(u'STEP: When I press the "Clear" button')
-
-
-@when(u'I press the "Retrieve" button')
-def step_impl(context):
+@when(u'I press the "{element_name}" button')
+def step_impl(context, element_name):
     button = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.element_to_be_clickable((By.ID, 'retrieve-btn'))
+        expected_conditions.element_to_be_clickable((By.ID, f'{element_name.lower()}-btn'))
     )
     button.click()
