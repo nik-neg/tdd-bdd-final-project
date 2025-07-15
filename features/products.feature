@@ -72,4 +72,12 @@ Scenario: Find many products
     And I press the "Clear" button
     Then the "Id" field should be empty
     When I press the "Search" button
-    Then I should see a list of "5" products
+    Then I should see a list of "4" products
+
+Scenario: Find products by category
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    When I select "Food" in the "Category" dropdown
+    And I press the "Search" button
+    Then I should see a list of "1" products

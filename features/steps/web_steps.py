@@ -154,6 +154,7 @@ def step_impl(context, amount):
         expected_conditions.presence_of_element_located((By.ID, 'search_results'))
     )
     # Find all rows in the table body (excluding header)
-    rows = table.find_elements(By.TAG_NAME, 'tr')
+    tbody = table.find_element(By.TAG_NAME, 'tbody')
+    rows = tbody.find_elements(By.TAG_NAME, 'tr')
 
     assert len(rows) == int(amount), 'Not correct amount of products'
