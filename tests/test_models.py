@@ -203,7 +203,6 @@ class TestProductModel(unittest.TestCase):
 
         
         for created, found in zip(created_products, found_products):
-            # app.logger.log(logging.CRITICAL, created.id)
             self.assertEqual(created.id, found.id)
             self.assertEqual(created.name, found.name)
             self.assertEqual(created.description, found.description)
@@ -335,4 +334,40 @@ class TestProductModel(unittest.TestCase):
         product3.update()
         found_products = Product.find_by_availability(product3.available)
         self.assertEqual(len(list(found_products)), 3)
+        
+    def test_search_by_price(self):
+        """It should return the products found by price"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product1 = ProductFactory()
+        product1.id = None
+        product1.price = Decimal('19.99')
+        product1.create()
+        self.assertIsNotNone(product1.id)
+
+        product2 = ProductFactory()
+        product2.id = None
+        product2.price = Decimal('19.99')
+        product2.create()
+        self.assertIsNotNone(product2.id)
+
+        product3 = ProductFactory()
+        product3.id = None
+        product3.price = Decimal('29.99')
+        product3.create()
+        self.assertIsNotNone(product3.id)
+
+        products = Product.all()
+        self.assertEqual(len(products), 3)
+
+        found_products = Product.find_by_price(Decimal('19.99'))
+        found_products = list(found_products)
+        self.assertEqual(len(found_products), 2)
+        for found in found_products:
+            self.assertEqual(Decimal(found.price), Decimal('19.99'))
+
+        found_products = Product.find_by_price(Decimal('29.99'))
+        found_products = list(found_products)
+        self.assertEqual(len(found_products), 1)
+        self.assertEqual(Decimal(found_products[0].price), Decimal('29.99'))
         
