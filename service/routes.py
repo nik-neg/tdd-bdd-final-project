@@ -120,9 +120,6 @@ def update_product_by_id(product_id):
     
     data = request.get_json()
 
-    # app.logger.critical("data: %s", data)
-    # app.logger.critical("found_product: %s", found_product)
-
     found_product = found_product.deserialize(data)
 
     found_product.update()
