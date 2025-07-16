@@ -181,6 +181,7 @@ def list_products():
             abort(400, description=f"Invalid category: {category}")
     else:
         products = Product.all()
+        
 
     results = [product.serialize() for product in products]
     app.logger.info("Returning %d products", len(results))

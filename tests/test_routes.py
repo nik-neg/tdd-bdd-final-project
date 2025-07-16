@@ -133,9 +133,6 @@ class TestProductRoutes(TestCase):
         #
         # Uncomment this code once READ is implemented
         #
-
-        # Check that the location header was correct
-        # logging.debug("Location: %s", location)
         
         response = self.client.get(location)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -151,7 +148,6 @@ class TestProductRoutes(TestCase):
         product = self._create_products()[0]
         new_product = product.serialize()
         del new_product["name"]
-        logging.debug("Product no name: %s", new_product)
         response = self.client.post(BASE_URL, json=new_product)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -175,7 +171,6 @@ class TestProductRoutes(TestCase):
         self.assertEqual(count, 0)
 
         test_product = ProductFactory()
-        logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -203,12 +198,10 @@ class TestProductRoutes(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         test_product = ProductFactory()
-        logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         test_product = ProductFactory()
-        logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -223,7 +216,6 @@ class TestProductRoutes(TestCase):
         self.assertEqual(count, 0)
 
         test_product = ProductFactory()
-        logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -265,7 +257,6 @@ class TestProductRoutes(TestCase):
         self.assertEqual(count, 0)
 
         test_product = ProductFactory()
-        logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -341,7 +332,6 @@ class TestProductRoutes(TestCase):
         self.assertEqual(count, 0)
 
         test_product = ProductFactory()
-        logging.debug("Test Product: %s", test_product.serialize())
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -396,6 +386,7 @@ class TestProductRoutes(TestCase):
         data = response.get_json()
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["name"], test_product.name)
+
 
     def test_find_by_availability(self):
         """It should find a product by availability"""
@@ -494,5 +485,4 @@ class TestProductRoutes(TestCase):
         response = self.client.get(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
-        # logging.debug("data = %s", data)
         return len(data)
