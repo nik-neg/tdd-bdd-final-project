@@ -30,14 +30,13 @@ from decimal import Decimal
 from unittest import TestCase
 from service import app
 from service.common import status
-from service.models import db, init_db, Product, DataValidationError
+from service.models import db, init_db, Product
 from tests.factories import ProductFactory
 
 # Disable all but critical errors during normal test run
 # uncomment for debugging failing tests
 # logging.disable(logging.CRITICAL)
 
-# DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
@@ -133,7 +132,6 @@ class TestProductRoutes(TestCase):
         #
         # Uncomment this code once READ is implemented
         #
-        
         response = self.client.get(location)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         new_product = response.get_json()
@@ -185,14 +183,13 @@ class TestProductRoutes(TestCase):
         self.assertEqual(Decimal(new_product["price"]), test_product.price)
         self.assertEqual(new_product["available"], test_product.available)
         self.assertEqual(new_product["category"], test_product.category.name)
-        
-        id = new_product['id'] + 1
-        response = self.client.get(f'/products/{id}')
+
+        new_id = new_product['id'] + 1
+        response = self.client.get(f'/products/{new_id}')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_find_all_products(self):
         """It should return a list with all products"""
-
         response = self.client.get(BASE_URL)
         self.assertEqual(response.json, [])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -204,7 +201,6 @@ class TestProductRoutes(TestCase):
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
 
         count = self.get_product_count()
         self.assertEqual(count, 2)
@@ -239,7 +235,6 @@ class TestProductRoutes(TestCase):
         new_product['category'] = 'HOUSEWARES'
         del new_product['id']
 
-
         response = self.client.patch(location, json=new_product)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
@@ -248,7 +243,6 @@ class TestProductRoutes(TestCase):
         self.assertEqual(updated_product["price"], new_product["price"])
         self.assertEqual(updated_product["available"], new_product["available"])
         self.assertEqual(updated_product["category"], new_product["category"])
-
 
     def test_update_product_validation_errors(self):
         """It should raise DataValidationError if the conditions are violated"""
@@ -273,46 +267,43 @@ class TestProductRoutes(TestCase):
         self.assertEqual(new_product["available"], test_product.available)
         self.assertEqual(new_product["category"], test_product.category.name)
 
-
         del new_product['id']
 
-        product_with_wrong_available = { **new_product }
+        product_with_wrong_available = {**new_product}
         product_with_wrong_available['available'] = 123
 
         response = self.client.patch(location, json=product_with_wrong_available)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        product_with_missing_attribute = { **new_product };
+        product_with_missing_attribute = {**new_product}
         del product_with_missing_attribute['name']
 
         response = self.client.patch(location, json=product_with_missing_attribute)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        product_with_wrong_type_name = { **new_product };
+        product_with_wrong_type_name = {**new_product}
         product_with_wrong_type_name['name'] = 12.99
 
         response = self.client.patch(location, json=product_with_wrong_type_name)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        product_with_wrong_type_description = { **new_product };
+        product_with_wrong_type_description = {**new_product}
         product_with_wrong_type_description['description'] = 12.99
 
         response = self.client.patch(location, json=product_with_wrong_type_description)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        product_with_wrong_type_price = { **new_product };
+        product_with_wrong_type_price = {**new_product}
         product_with_wrong_type_price['price'] = 123
 
         response = self.client.patch(location, json=product_with_wrong_type_price)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-
-        product_with_invalid_category = { **new_product };
+        product_with_invalid_category = {**new_product}
         product_with_invalid_category['category'] = 'INVALID'
 
         response = self.client.patch(location, json=product_with_invalid_category)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
 
     def test_update_product_that_is_not_in_database(self):
         """It should return 404 if the product id is not found"""
@@ -355,7 +346,6 @@ class TestProductRoutes(TestCase):
         new_product['category'] = 'HOUSEWARES'
         del new_product['id']
 
-
         response = self.client.delete(location)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -369,38 +359,36 @@ class TestProductRoutes(TestCase):
 
         response = self.client.delete(f'/products/{wrong_id}')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
 
     def test_find_by_name(self):
         """It should find a product by name"""
         products = self._create_products(3)
         test_product = products[0]
-        
+
         # Test finding product by name
         response = self.client.get(
-            BASE_URL, 
+            BASE_URL,
             query_string=f'name={test_product.name}'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         data = response.get_json()
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["name"], test_product.name)
-
 
     def test_find_by_availability(self):
         """It should find a product by availability"""
         products = self._create_products(10)
         available_products = [product for product in products if product.available]
         unavailable_products = [product for product in products if not product.available]
-        
+
         # Test finding available products
         response = self.client.get(
             BASE_URL,
             query_string='available=true'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         data = response.get_json()
         self.assertEqual(len(data), len(available_products))
         for product in data:
@@ -412,7 +400,7 @@ class TestProductRoutes(TestCase):
             query_string='available=false'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         data = response.get_json()
         self.assertEqual(len(data), len(unavailable_products))
         for product in data:
@@ -432,7 +420,7 @@ class TestProductRoutes(TestCase):
             query_string=f'category={test_category.name}'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         data = response.get_json()
         self.assertEqual(len(data), len(category_products))
         for product in data:
@@ -445,7 +433,7 @@ class TestProductRoutes(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_find_by_price(self): 
+    def test_find_by_price(self):
         """It should find a product by price"""
         products = self._create_products(10)
         test_price = products[0].price
@@ -459,8 +447,8 @@ class TestProductRoutes(TestCase):
             query_string=f'price={test_price}'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-        data = response.get_json() 
+
+        data = response.get_json()
         self.assertEqual(len(data), len(price_products))
         for product in data:
             self.assertEqual(Decimal(product["price"]), test_price)
@@ -475,7 +463,7 @@ class TestProductRoutes(TestCase):
             query_string=f'name={test_product.name}&price={test_product.price}'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
+
     ######################################################################
     # Utility functions
     ######################################################################

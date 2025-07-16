@@ -18,24 +18,31 @@
 Test Factory to make fake objects for testing
 """
 import factory
-from service.models import Product, Category
+from factory.fuzzy import FuzzyChoice
 from faker import Faker
-from factory.fuzzy import FuzzyDecimal, FuzzyChoice
+from service.models import Product, Category
 
 fake = Faker()
+
 
 class ProductFactory(factory.Factory):
     """Creates fake products for testing"""
 
     class Meta:
         """Maps factory to data model"""
-
         model = Product
 
     id = factory.Sequence(lambda n: n)
-    ## Add code to create Fake Products 
+    # Add code to create Fake Products
     name = factory.LazyFunction(fake.name)
     description = factory.LazyFunction(fake.text)
     price = factory.LazyFunction(lambda: round(fake.pydecimal(left_digits=2, right_digits=2, positive=True), 2))
     available = factory.LazyFunction(fake.boolean)
-    category = FuzzyChoice(choices=[Category.UNKNOWN, Category.CLOTHS, Category.FOOD, Category.HOUSEWARES, Category.AUTOMOTIVE, Category.TOOLS])
+    category = FuzzyChoice(choices=[
+        Category.UNKNOWN,
+        Category.CLOTHS,
+        Category.FOOD,
+        Category.HOUSEWARES,
+        Category.AUTOMOTIVE,
+        Category.TOOLS
+    ])

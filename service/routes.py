@@ -29,6 +29,7 @@ from . import app
 ######################################################################
 # H E A L T H   C H E C K
 ######################################################################
+
 @app.route("/health")
 def healthcheck():
     """Let them know our heart is still beating"""
@@ -38,6 +39,7 @@ def healthcheck():
 ######################################################################
 # H O M E   P A G E
 ######################################################################
+
 @app.route("/")
 def index():
     """Base URL for our service"""
@@ -65,9 +67,11 @@ def check_content_type(content_type):
         f"Content-Type must be {content_type}",
     )
 
+
 ######################################################################
 # C R E A T E   A   N E W   P R O D U C T
 ######################################################################
+
 @app.route("/products", methods=["POST"])
 def create_products():
     """
@@ -91,33 +95,35 @@ def create_products():
     #
     location_url = url_for("read_product_by_id", product_id=product.id, _external=True)
 
-    logging.debug("location_url: %s", location_url)
-    
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+
 
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
+
 @app.route("/products/<string:product_id>", methods=["GET"])
 def read_product_by_id(product_id):
     """Reads a product by product_id"""
     found_product = Product.find(product_id)
     if not found_product:
         abort(404, description=f"Product with ID {product_id} not found.")
-    
+
     serialized_found_product = found_product.serialize()
     return jsonify(serialized_found_product), status.HTTP_200_OK
+
 
 ######################################################################
 # U P D A T E   A   P R O D U C T
 ######################################################################
+
 @app.route("/products/<string:product_id>", methods=["PATCH"])
 def update_product_by_id(product_id):
     """Updates a product by product_id"""
     found_product = Product.find(product_id)
     if not found_product:
         abort(404, description=f"Product with ID {product_id} not found.")
-    
+
     data = request.get_json()
 
     found_product = found_product.deserialize(data)
@@ -125,19 +131,21 @@ def update_product_by_id(product_id):
     found_product.update()
 
     serialized_found_product = found_product.serialize()
-    
+
     return jsonify(serialized_found_product), status.HTTP_200_OK
+
 
 ######################################################################
 # D E L E T E   A   P R O D U C T
 ######################################################################
+
 @app.route("/products/<string:product_id>", methods=["DELETE"])
-def dalete_product_by_id(product_id):
+def delete_product_by_id(product_id):
     """Removes a product by product_id"""
     found_product = Product.find(product_id)
     if not found_product:
         abort(404, description=f"Product with ID {product_id} not found.")
-    
+
     found_product.delete()
     return jsonify({}), status.HTTP_204_NO_CONTENT
 
@@ -145,6 +153,7 @@ def dalete_product_by_id(product_id):
 ######################################################################
 # L I S T   P R O D U C T S   O R   Q U E R Y
 ######################################################################
+
 @app.route("/products", methods=["GET"])
 def list_products():
     """Returns list of all Products or query results if parameters provided"""
@@ -178,7 +187,6 @@ def list_products():
             abort(400, description=f"Invalid category: {category}")
     else:
         products = Product.all()
-        
 
     results = [product.serialize() for product in products]
     app.logger.info("Returning %d products", len(results))
